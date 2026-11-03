@@ -55,6 +55,21 @@ def test_read_and_parse_ug_csv_in_source_order(tmp_path):
     assert [song.artist for song in songs] == ["Artist Name", "Actual Singer"]
 
 
+def test_read_generic_csv_alias_headers(tmp_path):
+    source = tmp_path / "playlist.csv"
+    source.write_text(
+        "track,performer\n"
+        '"First Song",Singer One\n'
+        '"Second Song",Singer Two\n',
+        encoding="utf-8",
+    )
+    songs = read_songs(source)
+    assert [(song.title, song.artist) for song in songs] == [
+        ("First Song", "Singer One"),
+        ("Second Song", "Singer Two"),
+    ]
+
+
 def test_exact_and_artist_match_and_unmatched():
     sp = FakeSpotify(
         {
