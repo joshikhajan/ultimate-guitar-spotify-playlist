@@ -25,6 +25,18 @@ source .venv/bin/activate
 python -m pip install .
 ```
 
+### MCP and Claude Code
+
+To expose PDF conversion, Spotify match preview, and playlist creation as MCP tools, install `uv` and run the MCP server from this repository:
+
+```sh
+uv sync --extra mcp
+```
+
+The included `.mcp.json` starts the local stdio server with `uv run --extra mcp ug-spotify-mcp`. Configure the Spotify developer app environment variables from above in the MCP client's environment. Tools are named `convert_ultimate_guitar_pdf`, `preview_spotify_matches`, and `create_spotify_playlist`. Preview is read-only; playlist creation requires the preview ID and `confirm_create=true`, and always creates a new private playlist.
+
+Claude Code users can use the included `.claude/skills/ug-spotify-playlist/SKILL.md` workflow. It requires reviewing the match report and user approval before playlist creation.
+
 ## Convert PDF export to CSV
 
 ```sh
