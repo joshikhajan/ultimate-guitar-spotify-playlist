@@ -61,11 +61,21 @@ def parse_song(title: str, artist: str = "", row: int = 0) -> Song:
 def read_songs(path: Path) -> list[Song]:
     with path.open(newline="", encoding="utf-8-sig") as source:
         reader = csv.DictReader(source)
-        if not reader.fieldnames or "title" not in {name.strip().lower() for name in reader.fieldnames}:
-            raise ValueError("CSV must have a 'title' column.")
-        title_field = next(name for name in reader.fieldnames if name.strip().lower() == "title")
+        aliases = {"title", "track", "song", "track name", "song title"}
+        if not reader.fieldnames or not aliases.intersection(
+            name.strip().lower() for name in reader.fieldnames
+        ):
+            raise ValueError("CSV must have a title, track, or song column.")
+        title_field = next(
+            name for name in reader.fieldnames if name.strip().lower() in aliases
+        )
         artist_field = next(
-            (name for name in reader.fieldnames if name.strip().lower() == "artist"), None
+            (
+                name
+                for name in reader.fieldnames
+                if name.strip().lower() in {"artist", "performer", "band"}
+            ),
+            None,
         )
         songs = []
         for row_number, row in enumerate(reader, start=2):
@@ -208,9 +218,13 @@ def _spotify_client() -> Any:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Preview Spotify matches for an Ultimate Guitar favorites CSV export."
+        description="Preview Spotify matches for a song-list CSV export."
     )
-    parser.add_argument("csv_file", type=Path, help="CSV file with title and optional artist columns")
+    parser.add_argument(
+        "csv_file",
+        type=Path,
+        help="CSV file with a title/track/song column and an optional artist/performer column",
+    )
     parser.add_argument("--playlist", default="Ultimate Guitar", help="Playlist name (default: Ultimate Guitar)")
     parser.add_argument("--report", type=Path, default=Path("matches.csv"), help="Write a review CSV (default: matches.csv)")
     parser.add_argument(
