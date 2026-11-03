@@ -1,0 +1,11 @@
+{
+  "name": "spotify-playlist-builder",
+  "version": "0.1.0",
+  "description": "Build an ordered Spotify playlist from a song CSV, with careful matching, duplicate removal, and optional Ultimate Guitar PDF conversion.",
+  "author": {
+    "name": "joshikhajan"
+  },
+  "homepage": "https://github.com/joshikhajan/ultimate-guitar-spotify-playlist",
+  "repository": "https://github.com/joshikhajan/ultimate-guitar-spotify-playlist",
+  "keywords": ["ultimate-guitar", "spotify", "playlist", "music"]
+}
