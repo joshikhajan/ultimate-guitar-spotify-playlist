@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ultimate-guitar-spotify": {
+      "command": "uv",
+      "args": ["run", "--extra", "mcp", "ug-spotify-mcp"]
+    }
+  }
+}
