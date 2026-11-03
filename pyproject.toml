@@ -12,10 +12,12 @@ dependencies = ["spotipy>=2.25,<3", "pdfplumber>=0.11,<1"]
 
 [project.optional-dependencies]
 test = ["pytest>=8,<9"]
+mcp = ["mcp>=1,<2"]
 
 [project.scripts]
 ug-spotify-playlist = "ug_spotify.cli:main"
 ug-tabs-pdf-to-csv = "ug_spotify.pdf_to_csv:main"
+ug-spotify-mcp = "ug_spotify.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
