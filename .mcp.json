@@ -2,7 +2,7 @@
   "mcpServers": {
     "ultimate-guitar-spotify": {
       "command": "uv",
-      "args": ["run", "--extra", "mcp", "ug-spotify-mcp"]
+      "args": ["run", "--directory", "${CLAUDE_PLUGIN_ROOT}", "--extra", "mcp", "ug-spotify-mcp"]
     }
   }
 }
