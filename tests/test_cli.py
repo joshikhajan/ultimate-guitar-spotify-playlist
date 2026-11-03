@@ -10,6 +10,7 @@ from ug_spotify.cli import (
     read_songs,
     write_report,
 )
+from ug_spotify.pdf_to_csv import convert_pdf
 
 
 class FakeSpotify:
@@ -99,3 +100,58 @@ def test_report_contains_unmatched_and_review_details(tmp_path):
     assert row["source_title"] == "Unknown"
     assert row["status"] == "unmatched"
     assert row["note"] == "No results"
+
+
+def test_convert_pdf_export_to_csv(tmp_path, monkeypatch):
+    class FakePage:
+        def extract_words(self):
+            return [
+                {"x0": 160, "top": 100, "text": "ARTIST"},
+                {"x0": 320, "top": 100, "text": "SONG"},
+                {"x0": 620, "top": 100, "text": "DATE"},
+                {"x0": 710, "top": 100, "text": "TYPE"},
+                {"x0": 160, "top": 120, "text": "Artist"},
+                {"x0": 190, "top": 120, "text": "One"},
+                {"x0": 320, "top": 120, "text": "First"},
+                {"x0": 350, "top": 120, "text": "Song"},
+                {"x0": 620, "top": 120, "text": "4"},
+                {"x0": 630, "top": 120, "text": "days"},
+                {"x0": 660, "top": 120, "text": "ago"},
+                {"x0": 710, "top": 120, "text": "Chords"},
+                {"x0": 320, "top": 140, "text": "Second"},
+                {"x0": 360, "top": 140, "text": "Song"},
+                {"x0": 620, "top": 140, "text": "3"},
+                {"x0": 630, "top": 140, "text": "days"},
+                {"x0": 660, "top": 140, "text": "ago"},
+                {"x0": 710, "top": 140, "text": "Chords"},
+            ]
+
+    class FakePDF:
+        pages = [FakePage()]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+    class FakePdfPlumber:
+        @staticmethod
+        def open(path):
+            return FakePDF()
+
+    monkeypatch.setattr("ug_spotify.pdf_to_csv.pdfplumber", FakePdfPlumber)
+    source = tmp_path / "source.pdf"
+    source.touch()
+    destination = tmp_path / "songs.csv"
+    assert convert_pdf(source, destination) == 2
+    with destination.open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    assert rows[0] == {
+        "title": "First Song",
+        "artist": "Artist One",
+        "saved_date": "4 days ago",
+        "tab_type": "Chords",
+    }
+    assert rows[1]["title"] == "Second Song"
+    assert rows[1]["artist"] == ""
