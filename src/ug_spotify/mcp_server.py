@@ -27,7 +27,7 @@ def convert_ultimate_guitar_pdf(pdf_path: str, csv_path: str | None = None) -> d
 
 @mcp.tool()
 def preview_spotify_matches(csv_path: str, report_path: str = "matches.csv") -> dict[str, Any]:
-    """Search Spotify and save a local review CSV; this does not create or modify any playlist."""
+    """Search Spotify for songs in a CSV and save a local review report; no playlist is changed."""
     songs = read_songs(Path(csv_path).expanduser())
     spotify = _spotify_client()
     matches = match_all(spotify, songs)
