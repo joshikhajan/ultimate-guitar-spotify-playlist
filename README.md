@@ -1,6 +1,6 @@
 # Ultimate Guitar → Spotify playlist
 
-A small command-line tool that reads an Ultimate Guitar favorites CSV export, searches Spotify for likely recordings, and creates a private, source-ordered playlist. It does not access Ultimate Guitar or scrape a logged-in browser session: provide a CSV export you obtained yourself.
+A small command-line tool that converts a text-based Ultimate Guitar “My Tabs” PDF export to CSV, searches Spotify for likely recordings, and creates a private, source-ordered playlist. It does not access Ultimate Guitar or scrape a logged-in browser session: provide an export you obtained yourself.
 
 ## Requirements
 
@@ -25,12 +25,26 @@ source .venv/bin/activate
 python -m pip install .
 ```
 
+## Convert PDF export to CSV
+
+```sh
+ug-tabs-pdf-to-csv path/to/ultimate-guitar-my-tabs.pdf
+```
+
+By default this creates a sibling CSV with the same base filename. To choose another path:
+
+```sh
+ug-tabs-pdf-to-csv path/to/ultimate-guitar-my-tabs.pdf --output favorites.csv
+```
+
+The converter is intended for text-based PDFs saved from the Ultimate Guitar My Tabs page. It preserves source order and outputs `title,artist,saved_date,tab_type`. If the PDF is scanned or its table layout differs, conversion fails instead of silently claiming success; use OCR or correct the CSV manually in that case.
+
 ## Preview and review
 
 Ultimate Guitar exports with `title` and `artist` columns are supported. Songs are processed in CSV order. When the artist column contains a generic category such as “Misc Soundtrack,” it is ignored; a title shaped like `Artist - Song` is split when appropriate.
 
 ```sh
-ug-spotify-playlist path/to/ultimate-guitar-favorites.csv
+ug-spotify-playlist path/to/favorites.csv
 ```
 
 The default is preview-only. It prints counts and writes `matches.csv` for review. High-confidence matches are included; ambiguous or unmatched entries are not guessed. Identical Spotify track IDs are only added once, keeping the first source occurrence.
@@ -38,7 +52,7 @@ The default is preview-only. It prints counts and writes `matches.csv` for revie
 Inspect the report, correct the source CSV if needed, and rerun with the explicit `--apply` flag to create a new **private** playlist:
 
 ```sh
-ug-spotify-playlist path/to/ultimate-guitar-favorites.csv \
+ug-spotify-playlist path/to/favorites.csv \
   --playlist "Ultimate Guitar" \
   --report review.csv \
   --apply
