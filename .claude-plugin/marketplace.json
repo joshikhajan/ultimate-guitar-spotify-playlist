@@ -1,0 +1,14 @@
+{
+  "name": "spotify-playlist-tools",
+  "description": "Claude tools for creating reviewed Spotify playlists from song lists and CSV files.",
+  "owner": {
+    "name": "joshikhajan"
+  },
+  "plugins": [
+    {
+      "name": "spotify-playlist-builder",
+      "source": "./",
+      "description": "Create reviewed, source-ordered Spotify playlists from generic song CSVs or Ultimate Guitar exports."
+    }
+  ]
+}
