@@ -1,6 +1,6 @@
 # Ultimate Guitar → Spotify playlist
 
-A small command-line tool that converts a text-based Ultimate Guitar “My Tabs” PDF export to CSV, searches Spotify for likely recordings, and creates a private, source-ordered playlist. It does not access Ultimate Guitar or scrape a logged-in browser session: provide an export you obtained yourself.
+A small command-line tool and Claude plugin for creating private, source-ordered Spotify playlists from song-list CSVs. It accepts lists from any source with a title/track/song column and an optional artist/performer/band column; it can also convert a text-based Ultimate Guitar “My Tabs” PDF export to CSV. It does not access Ultimate Guitar or scrape a logged-in browser session: provide an export you obtained yourself.
 
 ## Requirements
 
@@ -25,17 +25,20 @@ source .venv/bin/activate
 python -m pip install .
 ```
 
-### MCP and Claude Code
+### Claude Code plugin, skill, and MCP server
 
-To expose PDF conversion, Spotify match preview, and playlist creation as MCP tools, install `uv` and run the MCP server from this repository:
+This repository is also packaged as a Claude Code plugin containing a reusable skill and the MCP tools. Install `uv`, then add the public GitHub repo as a Claude Code marketplace and install the plugin:
 
 ```sh
-uv sync --extra mcp
+claude plugin marketplace add joshikhajan/ultimate-guitar-spotify-playlist
+claude plugin install spotify-playlist-builder@spotify-playlist-tools
 ```
 
-The included `.mcp.json` starts the local stdio server with `uv run --extra mcp ug-spotify-mcp`. Configure the Spotify developer app environment variables from above in the MCP client's environment. Tools are named `convert_ultimate_guitar_pdf`, `preview_spotify_matches`, and `create_spotify_playlist`. Preview is read-only; playlist creation requires the preview ID and `confirm_create=true`, and always creates a new private playlist.
+The installed skill is `/spotify-playlist-builder:spotify-playlist`. The MCP server starts locally over stdio using `uv`; configure the Spotify developer app environment variables from above in Claude Code's environment. Tools are named `convert_ultimate_guitar_pdf`, `preview_spotify_matches`, and `create_spotify_playlist`. Preview is read-only; playlist creation requires the preview ID and `confirm_create=true`, and always creates a new private playlist. Claude Code may ask you to trust the marketplace/plugin before it enables components.
 
-Claude Code users can use the included `.claude/skills/ug-spotify-playlist/SKILL.md` workflow. It requires reviewing the match report and user approval before playlist creation.
+To install the skill without enabling MCP, copy `skills/spotify-playlist/` to `~/.claude/skills/spotify-playlist/`.
+
+The repo is public and installable directly as a marketplace. For listing in Anthropic's central Claude directory (which also makes it available via claude.ai/Cowork), the maintainer must submit the plugin through [Claude's developer directory portal](https://claude.ai/directory/manage) and satisfy its account and review requirements.
 
 ## Convert PDF export to CSV
 
@@ -51,9 +54,9 @@ ug-tabs-pdf-to-csv path/to/ultimate-guitar-my-tabs.pdf --output favorites.csv
 
 The converter is intended for text-based PDFs saved from the Ultimate Guitar My Tabs page. It preserves source order and outputs `title,artist,saved_date,tab_type`. If the PDF is scanned or its table layout differs, conversion fails instead of silently claiming success; use OCR or correct the CSV manually in that case.
 
-## Preview and review
+## Preview and review from any song CSV
 
-Ultimate Guitar exports with `title` and `artist` columns are supported. Songs are processed in CSV order. When the artist column contains a generic category such as “Misc Soundtrack,” it is ignored; a title shaped like `Artist - Song` is split when appropriate.
+Songs are processed in CSV order. Supported title headers are `title`, `track`, `song`, `track name`, and `song title`; supported optional artist headers are `artist`, `performer`, and `band`. When the artist column contains a generic category such as “Misc Soundtrack,” it is ignored; a title shaped like `Artist - Song` is split when appropriate.
 
 ```sh
 ug-spotify-playlist path/to/favorites.csv
